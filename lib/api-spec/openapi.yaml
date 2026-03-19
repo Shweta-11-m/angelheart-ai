@@ -1,0 +1,760 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: AngelHeart AI API specification
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: auth
+    description: Authentication operations
+  - name: mood
+    description: Mood tracking operations
+  - name: tasks
+    description: Task management operations
+  - name: voice
+    description: Voice journal operations
+  - name: chat
+    description: AI chat operations
+  - name: reports
+    description: Weekly reports
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /auth/signup:
+    post:
+      operationId: signup
+      tags: [auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthRequest"
+      responses:
+        "200":
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthRequest"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Logout current user
+      responses:
+        "200":
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /mood:
+    get:
+      operationId: getMoodEntries
+      tags: [mood]
+      summary: Get mood entries for current user
+      responses:
+        "200":
+          description: List of mood entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MoodEntry"
+    post:
+      operationId: createMoodEntry
+      tags: [mood]
+      summary: Create a mood entry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMoodEntry"
+      responses:
+        "201":
+          description: Mood entry created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MoodEntry"
+
+  /mood/dashboard:
+    get:
+      operationId: getDashboard
+      tags: [mood]
+      summary: Get dashboard data including health score, burnout risk, and trends
+      responses:
+        "200":
+          description: Dashboard data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardData"
+
+  /mood/today:
+    get:
+      operationId: getTodayMood
+      tags: [mood]
+      summary: Get today's mood entry if it exists
+      responses:
+        "200":
+          description: Today's mood entry or null
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TodayMoodResponse"
+
+  /tasks:
+    get:
+      operationId: getTasks
+      tags: [tasks]
+      summary: Get tasks for current user
+      responses:
+        "200":
+          description: List of tasks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Task"
+    post:
+      operationId: createTask
+      tags: [tasks]
+      summary: Create a task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTask"
+      responses:
+        "201":
+          description: Task created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+
+  /tasks/{id}:
+    patch:
+      operationId: updateTask
+      tags: [tasks]
+      summary: Update a task
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTask"
+      responses:
+        "200":
+          description: Task updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+    delete:
+      operationId: deleteTask
+      tags: [tasks]
+      summary: Delete a task
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Task deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /voice:
+    get:
+      operationId: getVoiceEntries
+      tags: [voice]
+      summary: Get voice journal entries
+      responses:
+        "200":
+          description: List of voice journal entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VoiceEntry"
+    post:
+      operationId: createVoiceEntry
+      tags: [voice]
+      summary: Create a voice journal entry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateVoiceEntry"
+      responses:
+        "201":
+          description: Voice entry created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VoiceEntry"
+
+  /chat:
+    post:
+      operationId: sendChatMessage
+      tags: [chat]
+      summary: Send a message to AI emotional support chat
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChatRequest"
+      responses:
+        "200":
+          description: AI response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatResponse"
+
+  /chat/history:
+    get:
+      operationId: getChatHistory
+      tags: [chat]
+      summary: Get chat history
+      responses:
+        "200":
+          description: Chat history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ChatMessage"
+
+  /reports/weekly:
+    get:
+      operationId: getWeeklyReport
+      tags: [reports]
+      summary: Get weekly emotional report
+      responses:
+        "200":
+          description: Weekly report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WeeklyReport"
+
+  /memories:
+    get:
+      operationId: getMemories
+      tags: [memories]
+      summary: Get user long-term memories
+      responses:
+        "200":
+          description: List of user memories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserMemory"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+      required:
+        - success
+        - message
+
+    AuthRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+      required:
+        - username
+        - password
+
+    AuthResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        user:
+          $ref: "#/components/schemas/User"
+      required:
+        - success
+        - user
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - username
+        - createdAt
+
+    CreateMoodEntry:
+      type: object
+      properties:
+        mood:
+          type: string
+          enum: [happy, neutral, stressed]
+        sleepHours:
+          type: number
+        stressLevel:
+          type: integer
+        workloadLevel:
+          type: integer
+        notes:
+          type: ["string", "null"]
+      required:
+        - mood
+        - sleepHours
+        - stressLevel
+        - workloadLevel
+
+    MoodEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        mood:
+          type: string
+        sleepHours:
+          type: number
+        stressLevel:
+          type: integer
+        workloadLevel:
+          type: integer
+        notes:
+          type: ["string", "null"]
+        healthScore:
+          type: integer
+        burnoutRisk:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - userId
+        - mood
+        - sleepHours
+        - stressLevel
+        - workloadLevel
+        - healthScore
+        - burnoutRisk
+        - createdAt
+
+    TodayMoodResponse:
+      type: object
+      properties:
+        entry:
+          oneOf:
+            - $ref: "#/components/schemas/MoodEntry"
+            - type: "null"
+        hasEntry:
+          type: boolean
+      required:
+        - hasEntry
+
+    DashboardData:
+      type: object
+      properties:
+        healthScore:
+          type: integer
+        burnoutRisk:
+          type: string
+        recentMoods:
+          type: array
+          items:
+            $ref: "#/components/schemas/MoodEntry"
+        triggers:
+          type: array
+          items:
+            $ref: "#/components/schemas/EmotionTrigger"
+        recommendations:
+          type: array
+          items:
+            type: string
+        pendingTasks:
+          type: integer
+        avgSleep:
+          type: number
+        avgStress:
+          type: number
+        avgWorkload:
+          type: number
+        moodDistribution:
+          type: object
+          additionalProperties:
+            type: integer
+      required:
+        - healthScore
+        - burnoutRisk
+        - recentMoods
+        - triggers
+        - recommendations
+        - pendingTasks
+        - avgSleep
+        - avgStress
+        - avgWorkload
+        - moodDistribution
+
+    EmotionTrigger:
+      type: object
+      properties:
+        pattern:
+          type: string
+        description:
+          type: string
+      required:
+        - pattern
+        - description
+
+    CreateTask:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: ["string", "null"]
+        deadline:
+          type: ["string", "null"]
+        priority:
+          type: string
+          enum: [low, medium, high]
+      required:
+        - title
+
+    UpdateTask:
+      type: object
+      properties:
+        title:
+          type: ["string", "null"]
+        description:
+          type: ["string", "null"]
+        deadline:
+          type: ["string", "null"]
+        priority:
+          type: ["string", "null"]
+        completed:
+          type: ["boolean", "null"]
+
+    Task:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        title:
+          type: string
+        description:
+          type: ["string", "null"]
+        deadline:
+          type: ["string", "null"]
+        priority:
+          type: string
+        completed:
+          type: boolean
+        createdAt:
+          type: string
+      required:
+        - id
+        - userId
+        - title
+        - priority
+        - completed
+        - createdAt
+
+    CreateVoiceEntry:
+      type: object
+      properties:
+        transcript:
+          type: string
+        emotionalTone:
+          type: ["string", "null"]
+        audioData:
+          type: ["string", "null"]
+      required:
+        - transcript
+
+    VoiceEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        transcript:
+          type: string
+        emotionalTone:
+          type: ["string", "null"]
+        audioData:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+      required:
+        - id
+        - userId
+        - transcript
+        - createdAt
+
+    ChatRequest:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+
+    ChatResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        timestamp:
+          type: string
+        emotion:
+          type: ["string", "null"]
+      required:
+        - message
+        - timestamp
+
+    ChatMessage:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        role:
+          type: string
+          enum: [user, assistant]
+        content:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - userId
+        - role
+        - content
+        - createdAt
+
+    WeeklyReport:
+      type: object
+      properties:
+        weekStart:
+          type: string
+        weekEnd:
+          type: string
+        avgStress:
+          type: number
+        avgSleep:
+          type: number
+        avgHealthScore:
+          type: number
+        dominantMood:
+          type: string
+        burnoutRisk:
+          type: string
+        moodTrend:
+          type: array
+          items:
+            $ref: "#/components/schemas/MoodTrendPoint"
+        stressTrend:
+          type: array
+          items:
+            $ref: "#/components/schemas/StressTrendPoint"
+        recommendations:
+          type: array
+          items:
+            type: string
+        totalEntries:
+          type: integer
+        moodDistribution:
+          type: object
+          additionalProperties:
+            type: integer
+        avgWorkload:
+          type: number
+      required:
+        - weekStart
+        - weekEnd
+        - avgStress
+        - avgSleep
+        - avgHealthScore
+        - dominantMood
+        - burnoutRisk
+        - moodTrend
+        - stressTrend
+        - recommendations
+        - totalEntries
+        - moodDistribution
+        - avgWorkload
+
+    MoodTrendPoint:
+      type: object
+      properties:
+        date:
+          type: string
+        mood:
+          type: string
+        healthScore:
+          type: integer
+      required:
+        - date
+        - mood
+        - healthScore
+
+    StressTrendPoint:
+      type: object
+      properties:
+        date:
+          type: string
+        stressLevel:
+          type: integer
+        sleepHours:
+          type: number
+      required:
+        - date
+        - stressLevel
+        - sleepHours
+    UserMemory:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        memoryText:
+          type: string
+        memoryType:
+          type: string
+          enum: [emotion, trigger, preference, pattern]
+        createdAt:
+          type: string
+      required:
+        - id
+        - userId
+        - memoryText
+        - memoryType
+        - createdAt
